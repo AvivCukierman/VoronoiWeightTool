@@ -48,8 +48,6 @@ public:
     bool m_doLC = false;
     bool m_doSpread = true;
     int m_nSigma = 1;
-    std::string m_eventInfo      = "EventInfo",
-                m_jets          = "AntiKt4LCTopoJets";
 
    // Constructor with parameters:
    VoronoiWeightTool(const std::string& name);
@@ -63,10 +61,10 @@ public:
    void SpreadPt(std::vector< std::pair< fastjet::PseudoJet,std::vector<float> > >& correctedptvec, float spreadr=0.4, float alpha=2);
 
 private:
-  xAOD::TEvent *m_event; //!
-  xAOD::TStore *m_store;  //!
-  struct PJcomp;
+  //xAOD::TEvent *m_event; //!
+  //xAOD::TStore *m_store;  //!
   std::vector<fastjet::PseudoJet> clusters; //!
+  struct PJcomp;
 
 public:
   // this is a standard constructor

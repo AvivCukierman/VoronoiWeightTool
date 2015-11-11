@@ -45,7 +45,9 @@ namespace HF = HelperFunctions;
 // this is needed to distribute the algorithm to the workers
 //ClassImp(VoronoiWeightTool)
 
-VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) : AsgTool(name) {
+VoronoiWeightTool :: VoronoiWeightTool(const std::string& name) :
+  AsgTool(name)
+{
   declareProperty("InputContainer", m_inputContainer);
   declareProperty("OutputContainer", m_outputContainer);
   declareProperty("doLCWeights", m_doLC);
@@ -76,13 +78,9 @@ StatusCode VoronoiWeightTool :: execute ()
 {
   const char* APP_NAME = "VoronoiWeightTool::execute()";
 
-  const xAOD::EventInfo*                        eventInfo     (nullptr);
   const xAOD::CaloClusterContainer*             in_clusters   (nullptr);
   
-  // start grabbing all the containers that we can
-  RETURN_CHECK("VoronoiWeightTool::execute()", HF::retrieve(eventInfo,    m_eventInfo,        m_event, m_store, m_debug), "Could not get the EventInfo container.");
-  if(!m_inputContainer.empty())
-    RETURN_CHECK("VoronoiWeightTool::execute()", HF::retrieve(in_clusters,     m_inputContainer,       m_event, m_store, m_debug), "Could not get the clusters container.");
+  if(evtStore()->retrieve(in_clusters,m_inputContainer).isFailure()) Error(APP_NAME,"Could not retrieve the input cluster container");
 
   clusters.clear();
 
