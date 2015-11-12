@@ -26,7 +26,7 @@ InputContainer   | string                    |    "CaloCalTopoClusters"         
 OutputContainer  | string                    |    "VoronoiClusters"                       | name of the output shallow copy cluster container with modified pT
 doLCWeights       | bool                     | false                      | apply LC weights to clusters before Voronoi algorithms
 doSpread  | bool     | true | after Voronoi subtraction, apply spreading to negative pT clusters
-nSigma     | int                    | 0                      | at the end, suppress all clusters with pT<nSigma*sigmaRho*sqrt(area)
+nSigma     | int                    | 0                      | at the end, suppress all clusters with pT<nSigma * sigmaRho * sqrt(area)
 
 ## Using
 Add this package as a dependency in `cmt/Makefile.RootCore`.
