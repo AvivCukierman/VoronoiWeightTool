@@ -20,6 +20,7 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "xAODCore/ShallowAuxContainer.h"
+#include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetConstituentVector.h"
 
 // EDM
@@ -98,7 +99,20 @@ StatusCode VoronoiWeightTool :: execute ()
   if(MakeVoronoiClusters(ptvec) != StatusCode::SUCCESS) Error(APP_NAME,"Error in MakeVoronoiClusters");
   std::sort(ptvec.begin(), ptvec.end(), PJcomp());
 
+  std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > clustSC = xAOD::shallowCopyContainer( *in_clusters );
+  xAOD::CaloClusterContainer::iterator cl_itr = ((clustSC).first)->begin();
+  xAOD::CaloClusterContainer::iterator cl_end = ((clustSC).first)->end();
   int i=0;
+  for( ; cl_itr != cl_end; ++cl_itr){
+    bool endvec = i==ptvec.size();
+    if(endvec) continue;
+    (*cl_itr)->setE(ptvec[i].second[3]*cosh((*cl_itr)->eta()));
+    i++;
+  }
+  evtStore()->record( clustSC.first, m_outputContainer );
+  evtStore()->record( clustSC.second, m_outputContainer+std::string("Aux.") );
+
+  i=0;
   static SG::AuxElement::Decorator< float > voro0Pt("voro0Pt");
   static SG::AuxElement::Decorator< float > voro1Pt("voro1Pt");
   static SG::AuxElement::Decorator< float > spreadPt("spreadPt");
