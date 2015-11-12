@@ -99,6 +99,13 @@ StatusCode VoronoiWeightTool :: execute ()
   if(MakeVoronoiClusters(ptvec) != StatusCode::SUCCESS) Error(APP_NAME,"Error in MakeVoronoiClusters");
   std::sort(ptvec.begin(), ptvec.end(), PJcomp());
 
+  if(!(m_nSigma==0 || m_nSigma==1)) Error(APP_NAME,"nSigma > 1 not implemented yet"); 
+  if(m_doSpread && m_nSigma == 1) Error(APP_NAME,"Can't combine spreading with nSigma yet");
+  int alg;
+  if(m_doSpread && m_nSigma == 0) alg = 3;
+  if(!m_doSpread && m_nSigma == 0) alg = 1;
+  if(!m_doSpread && m_nSigma == 1) alg = 2;
+  
   std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > clustSC = xAOD::shallowCopyContainer( *in_clusters );
   xAOD::CaloClusterContainer::iterator cl_itr = ((clustSC).first)->begin();
   xAOD::CaloClusterContainer::iterator cl_end = ((clustSC).first)->end();
@@ -106,7 +113,7 @@ StatusCode VoronoiWeightTool :: execute ()
   for( ; cl_itr != cl_end; ++cl_itr){
     bool endvec = i==ptvec.size();
     if(endvec) continue;
-    (*cl_itr)->setE(ptvec[i].second[3]*cosh((*cl_itr)->eta()));
+    (*cl_itr)->setE(ptvec[i].second[alg]*cosh((*cl_itr)->eta()));
     i++;
   }
   evtStore()->record( clustSC.first, m_outputContainer );
