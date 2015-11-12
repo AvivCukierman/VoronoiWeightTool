@@ -47,7 +47,7 @@ public:
     bool m_debug = false;
     bool m_doLC = false;
     bool m_doSpread = true;
-    int m_nSigma = 1;
+    int m_nSigma = 0;
 
    // Constructor with parameters:
    VoronoiWeightTool(const std::string& name);
