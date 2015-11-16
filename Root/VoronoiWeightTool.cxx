@@ -80,13 +80,17 @@ StatusCode VoronoiWeightTool :: execute ()
   const char* APP_NAME = "VoronoiWeightTool::execute()";
 
   const xAOD::CaloClusterContainer*             in_clusters   (nullptr);
+  //const xAOD::EventInfo*             eventInfo   (nullptr);
   
+  //if(evtStore()->retrieve(eventInfo,"EventInfo").isFailure()) Error(APP_NAME,"Could not retrieve the input cluster container");
   if(evtStore()->retrieve(in_clusters,m_inputContainer).isFailure()) Error(APP_NAME,"Could not retrieve the input cluster container");
+  /*int event_number = eventInfo->eventNumber(); //added
+  std::cout << event_number << std::endl;*/
 
   clusters.clear();
 
   CaloClusterChangeSignalStateList stateHelperList;
-  for(const auto clust: *in_clusters){
+  for(auto clust: *in_clusters){
     //read in clusters as PseudoJets
     if(m_doLC) stateHelperList.add(clust,xAOD::CaloCluster::State(1)); //default is calibrated but we can make it explicit anyway
     else stateHelperList.add(clust,xAOD::CaloCluster::State(0));
@@ -107,17 +111,34 @@ StatusCode VoronoiWeightTool :: execute ()
   if(!m_doSpread && m_nSigma == 1) alg = 2;
   
   std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > clustSC = xAOD::shallowCopyContainer( *in_clusters );
-  xAOD::CaloClusterContainer::iterator cl_itr = ((clustSC).first)->begin();
-  xAOD::CaloClusterContainer::iterator cl_end = ((clustSC).first)->end();
+  xAOD::CaloClusterContainer* SC_clusters = clustSC.first;
   int i=0;
-  for( ; cl_itr != cl_end; ++cl_itr){
-    bool endvec = i==ptvec.size();
-    if(endvec) continue;
-    (*cl_itr)->setE(ptvec[i].second[alg]*cosh((*cl_itr)->eta()));
-    i++;
+  for(auto clust : HF::sort_container_pt(SC_clusters)){
+    //There should be the same number of positive E Clusters in the container as clusters in the ptvec
+    bool endContainer = clust->e()<=0;
+    bool endVec = i==ptvec.size();
+    if(endVec && endContainer) continue;
+    else if(endContainer || endVec){
+      Error(APP_NAME,"Clusters don't have same number of elements.");
+      return StatusCode::FAILURE;
+    }
+    else{
+      //And the clusters should match
+      float Containerpt = clust->pt();
+      float PJpt = ptvec[i].first.pt();
+      if (fabs(Containerpt-PJpt) > 0.1){
+        if(m_debug) std::cout << fabs(Containerpt-PJpt) << std::endl;
+        Error(APP_NAME,"Clusters don't match.");
+        return StatusCode::FAILURE;
+      }
+      clust->setE(ptvec[i].second[alg]*cosh(clust->eta()));
+      i++;
+    }
   }
   evtStore()->record( clustSC.first, m_outputContainer );
   evtStore()->record( clustSC.second, m_outputContainer+std::string("Aux.") );
+
+  //asdf
 
   i=0;
   static SG::AuxElement::Decorator< float > voro0Pt("voro0Pt");
@@ -131,7 +152,6 @@ StatusCode VoronoiWeightTool :: execute ()
       std::cout << "CDV Pt: " << clust->pt() << "; E: " << clust->e()<< std::endl;
       std::cout << "PT Vec Pt: " << ptvec[i].first.pt() << "; E: " << ptvec[i].first.e()<< std::endl;
     }
-    
 
     //There should be the same number of positive E Clusters in the CDV as clusters in the ptvec
     bool endCDV = clust->e()<=0;
