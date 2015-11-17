@@ -138,47 +138,6 @@ StatusCode VoronoiWeightTool :: execute ()
   evtStore()->record( clustSC.first, m_outputContainer );
   evtStore()->record( clustSC.second, m_outputContainer+std::string("Aux.") );
 
-  //asdf
-
-  i=0;
-  static SG::AuxElement::Decorator< float > voro0Pt("voro0Pt");
-  static SG::AuxElement::Decorator< float > voro1Pt("voro1Pt");
-  static SG::AuxElement::Decorator< float > spreadPt("spreadPt");
-  for(const auto clust: HF::sort_container_pt(in_clusters)){
-    voro0Pt(*clust) = 0;
-    voro1Pt(*clust) = 0;
-    spreadPt(*clust) = 0;
-    if(m_debug){
-      std::cout << "CDV Pt: " << clust->pt() << "; E: " << clust->e()<< std::endl;
-      std::cout << "PT Vec Pt: " << ptvec[i].first.pt() << "; E: " << ptvec[i].first.e()<< std::endl;
-    }
-
-    //There should be the same number of positive E Clusters in the CDV as clusters in the ptvec
-    bool endCDV = clust->e()<=0;
-    bool endvec = i==ptvec.size();
-    if(endCDV && endvec) continue;
-    else if(endCDV || endvec){
-      Error(APP_NAME,"Clusters don't have same number of elements.");
-      return StatusCode::FAILURE;
-    }
-    else{
-      if(m_debug) std::cout << clust->pt() << "\t" << clust->eta() << "\t" << clust->phi() << "\t" << clust->m() << "\t" << ptvec[i].second[0] << "\t" << ptvec[i].second[3] << std::endl;
-      voro0Pt(*clust) = ptvec[i].second[1];
-      voro1Pt(*clust) = ptvec[i].second[2];
-      spreadPt(*clust) = ptvec[i].second[3];
-      i++;
-    }
-
-    //And the clusters should match
-    float CDVpt = clust->pt();
-    float PJpt = ptvec[i-1].first.pt();
-    if (fabs(CDVpt-PJpt) > 0.1){
-      if(m_debug) std::cout << fabs(CDVpt-PJpt) << std::endl;
-      Error(APP_NAME,"Clusters don't match.");
-      return StatusCode::FAILURE;
-    }
-  }
-
   return StatusCode::SUCCESS;
 }
 
