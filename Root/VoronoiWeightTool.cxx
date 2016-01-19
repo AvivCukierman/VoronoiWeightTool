@@ -112,6 +112,10 @@ StatusCode VoronoiWeightTool :: execute ()
   
   std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > clustSC = xAOD::shallowCopyContainer( *in_clusters );
   xAOD::CaloClusterContainer* SC_clusters = clustSC.first;
+  for(auto clust : *SC_clusters){
+    if(m_doLC) stateHelperList.add(clust,xAOD::CaloCluster::State(1)); //default is calibrated but we can make it explicit anyway
+    else stateHelperList.add(clust,xAOD::CaloCluster::State(0));
+  }
   int i=0;
   for(auto clust : HF::sort_container_pt(SC_clusters)){
     //There should be the same number of positive E Clusters in the container as clusters in the ptvec
