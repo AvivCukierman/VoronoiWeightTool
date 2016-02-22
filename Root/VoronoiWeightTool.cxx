@@ -101,6 +101,11 @@ StatusCode VoronoiWeightTool :: execute ()
 
   std::vector< std::pair< fastjet::PseudoJet, std::vector<float> > > ptvec; //vector of pairs of PJs and their corrected pTs
   if(MakeVoronoiClusters(ptvec) != StatusCode::SUCCESS) Error(APP_NAME,"Error in MakeVoronoiClusters");
+  if(m_debug){
+    for(int iCl = 0; iCl < 50; iCl++){
+      if(ptvec[iCl].second[0]>10000) std::cout << "Vsub,Vspread (main): " << ptvec[iCl].second[0] << ";" <<  ptvec[iCl].second[3] << std::endl;
+    }
+  }
   std::sort(ptvec.begin(), ptvec.end(), PJcomp());
 
   if(!(m_nSigma==0 || m_nSigma==1)) Error(APP_NAME,"nSigma > 1 not implemented yet"); 
@@ -136,6 +141,9 @@ StatusCode VoronoiWeightTool :: execute ()
         return StatusCode::FAILURE;
       }
       clust->setE(ptvec[i].second[alg]*cosh(clust->eta()));
+      if(m_debug && i==0) std::cout << alg << ";" << ptvec[i].second[alg] << std::endl;
+      if(m_debug && i==0) std::cout << alg << ";" << ptvec[i].second[alg]*cosh(clust->eta()) << std::endl;
+      if(m_debug && i==0) std::cout << alg << ";" << clust->e() << ";" << clust->eta() << ";" << clust->phi()<< std::endl;
       i++;
     }
   }
@@ -166,6 +174,7 @@ StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastje
 
   int nsigma = 1;
   float rho = bge.rho();
+  if(m_debug) std::cout << "rho: " << rho << std::endl;
   float sigma = bge.sigma();
   for(unsigned int iJet = 0 ; iJet < inclusiveJets.size() ; iJet++){
     fastjet::PseudoJet jet = inclusiveJets[iJet];
@@ -187,6 +196,7 @@ StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastje
       algopts.push_back(subPt);
       algopts.push_back(voro0pt);
       algopts.push_back(voro1pt);
+      if(m_debug && subPt > 10000) std::cout << subPt << ";" << voro0pt << ";" << voro1pt << std::endl;
       algopts.push_back(0);
       std::pair <fastjet::PseudoJet,std::vector<float> > pjcptpair (cons,algopts);
       correctedptvec.push_back(pjcptpair);
@@ -195,6 +205,11 @@ StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastje
   //std::cout << "Size: " << correctedptmap.size() << std::endl;
 
   SpreadPt(correctedptvec);
+  if(m_debug){
+    for(int iCl = 0; iCl < 50; iCl++){
+      if(correctedptvec[iCl].second[0]>10000) std::cout << "Vsub,Vspread (MakeVoronoiClust): " << correctedptvec[iCl].second[0] << ";" <<  correctedptvec[iCl].second[3] << std::endl;
+    }
+  }
 
 return StatusCode::SUCCESS;
 }
@@ -276,5 +291,6 @@ void VoronoiWeightTool::SpreadPt(std::vector< std::pair< fastjet::PseudoJet,std:
 
   for(int iCl = 0; iCl < clusters; iCl++){
     correctedptvec[iCl].second[3] = spreadPT[iCl] * (spreadPT[iCl] > 0);
+    if(m_debug && correctedptvec[iCl].second[0]>10000) std::cout << "Vsub,Vspread: " << correctedptvec[iCl].second[0] << ";" <<  correctedptvec[iCl].second[3] << std::endl;
   }
 }
