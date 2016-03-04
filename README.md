@@ -28,23 +28,6 @@ doLCWeights       | bool                     | false                      | appl
 doSpread  | bool     | true | after Voronoi subtraction, apply spreading to negative pT clusters
 nSigma     | int                    | 0                      | at the end, suppress all clusters with pT<nSigma * sigmaRho * sqrt(area)
 
-N.B. The `doLCWeights` option indicates whether to apply LC weights (if true) or EM weights (if false) to clusters. The output clusters have their pTs modified *in the given state*. I.e. with `doLCWeights` set to true, only the LC pT of the new cluster collection is modified, and with `doLCWeights` set to false, only the EM pT of the new cluster collection is modified. In order to set the state of the output (or any) cluster collection, the `CaloClusterChangeSignalStateList` tool is used, as follows:
-```c++
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
-```
-
-```c++
-  const xAOD::CaloClusterContainer*             new_clusters   (nullptr);
-  if(evtStore()->retrieve(new_clusters,m_OutputContainer).isFailure()) Error(APP_NAME,"Could not retrieve the Voronoi cluster container");
-
-  CaloClusterChangeSignalStateList stateHelperList;
-  for(auto clust: *new_clusters){
-    if(m_doLCWeights) stateHelperList.add(clust,xAOD::CaloCluster::State(1)); //default is calibrated but we can make it explicit anyway
-    else stateHelperList.add(clust,xAOD::CaloCluster::State(0));
-    //now clust->pt() will give Voronoi modified pT, and jet reconstruction will use Voronoi modified pT
-  }
-```
-
 ## Using
 Add this package as a dependency in `cmt/Makefile.RootCore`.
 
