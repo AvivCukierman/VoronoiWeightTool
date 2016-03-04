@@ -7,7 +7,7 @@ This package makes use of [UChicago](https://github.com/UCATLAS)'s [xAODAnaHelpe
 To install,
 ```bash
 mkdir myRootCore && cd $_
-rcSetup Base,2.3.23
+rcSetup Base,2.3.41
 git clone https://github.com/kratsg/xAODJetReclustering
 git clone https://github.com/UCATLAS/xAODAnaHelpers
 git clone https://github.com/AvivCukierman/VoronoiWeightTool
@@ -16,7 +16,7 @@ rc checkout_pkg atlasoff/AsgExternal/Asg_FastJetContrib/tags
 rc find_packages
 rc compile
 ```
-(I think, I haven't tested this yet)
+
 
 ## Configurations
 
