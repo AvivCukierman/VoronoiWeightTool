@@ -16,6 +16,7 @@ rc checkout_pkg atlasoff/AsgExternal/Asg_FastJetContrib/tags
 rc find_packages
 rc compile
 ```
+(You might have to do a `rcSetup -u && rcSetup Base,2.3.41` before the final `rc compile` just because.)
 
 
 ## Configurations
