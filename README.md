@@ -7,7 +7,7 @@ This package makes use of [UChicago](https://github.com/UCATLAS)'s [xAODAnaHelpe
 To install,
 ```bash
 mkdir myRootCore && cd $_
-rcSetup Base,2.3.23
+rcSetup Base,2.3.41
 git clone https://github.com/kratsg/xAODJetReclustering
 git clone https://github.com/UCATLAS/xAODAnaHelpers
 git clone https://github.com/AvivCukierman/VoronoiWeightTool
@@ -16,7 +16,8 @@ rc checkout_pkg atlasoff/AsgExternal/Asg_FastJetContrib/tags
 rc find_packages
 rc compile
 ```
-(I think, I haven't tested this yet)
+(You might have to do a `rcSetup -u && rcSetup` before the final `rc compile` just because.)
+
 
 ## Configurations
 
@@ -54,6 +55,23 @@ if(m_VoronoiTool) delete m_VoronoiTool;
 ```
 
 You can then do jet clustering as normal on the output cluster container.
+
+N.B. The `doLCWeights` option indicates whether to apply LC weights (if true) or EM weights (if false) to clusters. The output clusters have their pTs modified *in the given state*. I.e. with `doLCWeights` set to true, only the LC pT of the new cluster collection is modified, and with `doLCWeights` set to false, only the EM pT of the new cluster collection is modified. In order to set the state of the output (or any) cluster collection, the `CaloClusterChangeSignalStateList` tool should be used in your algorithm, as follows:
+```c++
+#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+```
+
+```c++
+ const xAOD::CaloClusterContainer*             new_clusters   (nullptr);
+ if(evtStore()->retrieve(new_clusters,m_OutputContainer).isFailure()) Error(APP_NAME,"Could not retrieve the Voronoi cluster container");
+
+ CaloClusterChangeSignalStateList stateHelperList;
+ for(auto clust: *new_clusters){
+   if(m_doLCWeights) stateHelperList.add(clust,xAOD::CaloCluster::State(1)); //default is calibrated but we can make it explicit anyway
+   else stateHelperList.add(clust,xAOD::CaloCluster::State(0));
+   //now clust->pt() will give Voronoi modified pT, and jet reconstruction will use Voronoi modified pT
+ }
+```
 
 Note that as it behaves like an `AsgTool`, the functions `setProperty()` and `initialize()` have a return type `StatusCode`.
 
