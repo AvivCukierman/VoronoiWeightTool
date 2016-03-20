@@ -108,12 +108,12 @@ StatusCode VoronoiWeightTool :: execute ()
   }
   std::sort(ptvec.begin(), ptvec.end(), PJcomp());
 
-  if(!(m_nSigma==0 || m_nSigma==1)) Error(APP_NAME,"nSigma > 1 not implemented yet"); 
+  //if(!(m_nSigma==0 || m_nSigma==1)) Error(APP_NAME,"nSigma > 1 not implemented yet"); 
   if(m_doSpread && m_nSigma == 1) Error(APP_NAME,"Can't combine spreading with nSigma yet");
   int alg;
   if(m_doSpread && m_nSigma == 0) alg = 3;
   if(!m_doSpread && m_nSigma == 0) alg = 1;
-  if(!m_doSpread && m_nSigma == 1) alg = 2;
+  if(!m_doSpread && m_nSigma > 0) alg = 2;
   
   std::pair< xAOD::CaloClusterContainer*, xAOD::ShallowAuxContainer* > clustSC = xAOD::shallowCopyContainer( *in_clusters );
   xAOD::CaloClusterContainer* SC_clusters = clustSC.first;
@@ -172,7 +172,7 @@ StatusCode VoronoiWeightTool::MakeVoronoiClusters(std::vector< std::pair< fastje
   bge.set_particles(inputConst);
   std::vector<fastjet::PseudoJet> inclusiveJets = sorted_by_pt(clustSeq.inclusive_jets(0));
 
-  int nsigma = 1;
+  int nsigma = m_nSigma;
   float rho = bge.rho();
   if(m_debug) std::cout << "rho: " << rho << std::endl;
   float sigma = bge.sigma();
