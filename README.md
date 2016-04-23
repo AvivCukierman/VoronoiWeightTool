@@ -49,7 +49,7 @@ Set up the tool in the `initialize()` portion of your algorithm as a pointer
   m_VoronoiTool->initialize();
 ```
 
-And then simply call `m_jetReclusteringTool->execute()` in the `execute()` portion of your algorithm to fill the TStore with the appropriate container(s). Don't forget to delete the pointer when you're done.
+And then simply call `m_VoronoiTool->execute()` in the `execute()` portion of your algorithm to fill the TStore with the appropriate container(s). Don't forget to delete the pointer when you're done.
 ```c++
 if(m_VoronoiTool) delete m_VoronoiTool;
 ```
